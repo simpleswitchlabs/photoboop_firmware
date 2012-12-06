@@ -364,6 +364,10 @@ void showLetter(char letter)
       digitalWrite(PIN_G,TURN_ON); 
       break;
       
+    case ' ':
+      segments_off();
+      break;
+      
    default:
      show(8);
   }
