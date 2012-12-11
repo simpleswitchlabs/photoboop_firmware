@@ -10,7 +10,6 @@
 
 int current_state = 0; //0==first time through, 1==photo booth mode, 2==time lapse mode, 3==sound activated mode
 int interval_time = 0; 
-int clap_counter = 0;
 
 void setup()
 {
@@ -84,9 +83,6 @@ void loop()
     case 3:
       sound_trigger();
       break;
-      
-    case 4:
-      clap_booth();
   } 
 
 }
@@ -110,7 +106,7 @@ void find_mode()
       if(button_state ==1)
       {
         mode++;
-        if(mode>3)
+        if(mode>2)
         {
           mode = 0;
         }
@@ -129,8 +125,6 @@ void find_mode()
             break;
           case 2:
             showLetter('S');
-          case 3:
-            showLetter('C');
         }
         delay(175); //delay for button debouncing
       }
@@ -316,34 +310,6 @@ void sound_trigger()
     showLetter('S');
   }
  
-}
-
-void clap_booth()
-{
-  //this mode does a countdown after hearing a loud noise - a blending of sound activated and photo booth
-   pinMode(PIEZO_PIN, INPUT);
-  
-  int signal = analogRead(PIEZO_PIN);
-  
-  char clap[]="CLAP ";
-  showLetter(clap[clap_counter]);
-  clap_counter++;
-  if(clap_counter>5)
-  {
-    clap_counter = 0;
-  }
-  
-  if(signal>SOUNDLEVEL)
-  {
-    countdown(3,0);
-    take_a_picture_booth();
-    delay(150);
-  }
-  else
-  {
-    delay(150);
-  }
-  
 }
   
 
