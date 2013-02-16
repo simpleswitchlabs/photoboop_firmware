@@ -5,6 +5,8 @@
 
 #define CAMERA_TRIGGER_DELAY 100 //make this larger if you're having trouble getting camera to trigger properly
 
+#define SHOTS 4 //the number of photos per photo booth run
+
 // ***pin assignments - don't play with unless you know what you're doing***
 
 //defining the segments A-G  
@@ -25,7 +27,8 @@
 #define TURN_ON 0
 #define TURN_OFF 1
 
-//IR LED for IR remote only cameras
+//IR LED for IR remote only cameras 
+#define FLASH 13 //for triggering LED FLASHES instead
 #define IR_LED 13
 
 //PWM pins to display which photo is being taken 
@@ -34,6 +37,7 @@
 #define PIN_3 5 
 #define PIN_4 6
 #define BRIGHT 255 //value between 0 and 255 for LED brightness
+
 
 //the button
 #define BUTTON_PIN 16

@@ -8,8 +8,12 @@
 #include "music.h"
 #include "lights.h"
 
-int current_state = 0; //0==first time through, 1==photo booth mode, 2==time lapse mode, 3==sound activated mode
-int interval_time = 0; 
+
+int READY_ = 4;
+int BUSY_ = 3;
+int CHANGE_ = 2;
+int POSES_ = 1;
+
 
 void setup()
 {
@@ -27,6 +31,8 @@ void setup()
   pinMode(PIN_4, OUTPUT);
   
   pinMode(PIEZO_PIN, OUTPUT);
+  
+  pinMode(FLASH, OUTPUT);
 
   pinMode(BUTTON_PIN, INPUT);
 
@@ -39,11 +45,16 @@ void setup()
   digitalWrite(WIRED_SHUTTER,0);
 
   //a quick test of the displays
+  
+  digitalWrite(FLASH, 1);
+  
   for(int i = 0; i<10; i++)
   {
     show(i);
     delay(120);
   }
+  
+  digitalWrite(FLASH,0);
 
   segments_off();
 
@@ -60,82 +71,9 @@ void setup()
 
 void loop()
 {
-//  char stufftosay[ ]="ACDEeFGgHhIJLOoPSY"; //letter test mode
-  switch(current_state)
-  {
-    case 0:
-      find_mode();  
-//      for(int i=0;i<sizeof(stufftosay);i++)
-//      {
-//        showLetter(stufftosay[i]);
-//        delay(1000);
-//      }
-      break;
-      
-    case 1:
       photo_booth();
-      break;
-      
-    case 2:
-      time_lapse();
-      break;
-      
-    case 3:
-      sound_trigger();
-      break;
-  } 
-
 }
 
-void find_mode()
-{
-  for(int i=1; i<5; i++)
-  {
-    photo_light(i);
-  }
-    
-  int mode = 0;      
-  showLetter('P');
-  
-  for(int j=4; j>0; j--)
-  {
-    for(int i=0; i<75; i++)
-    {
-      delay(25);
-      int button_state = digitalRead(BUTTON_PIN);
-      if(button_state ==1)
-      {
-        mode++;
-        if(mode>2)
-        {
-          mode = 0;
-        }
-        
-        j=4;
-        for(int k=1; k<5; k++)
-        {photo_light(k);}
-        
-        switch(mode)
-        {
-          case 0:
-            showLetter('P');
-            break;
-          case 1:
-            showLetter('L');
-            break;
-          case 2:
-            showLetter('S');
-        }
-        delay(175); //delay for button debouncing
-      }
-    }
-
-    photo_dark(j);
-  }
-  
-  current_state = mode + 1;  //translates mode into current_state
-
-}
 
 void photo_booth()
 {
@@ -145,131 +83,46 @@ void photo_booth()
   if(button_state == 1)
   {
     camera_wakeup();
+    photo_dark_all();
+    photo_light(BUSY_);
     
-    for(int i = 1; i<5; i++)
+    for(int shot_number = (SHOTS); shot_number > 0; shot_number --)
     {
-      photo_light(i);
-      PlayNote(i,LEN_E);
-      delay(100);
+      show(shot_number);
+      
+      if(shot_number < SHOTS)
+      {
+        for(int i=4;i>0;i--)
+        {
+          photo_light(CHANGE_);
+          delay(400);
+          photo_dark(CHANGE_);
+          photo_light(POSES_);
+          delay(400);
+          photo_dark(POSES_);
+        }
+        delay (500);
+      }
+      else
+      {
+        delay(2000);
+      }
+      
+      take_a_picture();
+      show(shot_number); //this repetition fixes problems with display
+          
     }
-    
-    delay(500);
-    
-    for(int photo_number = 4; photo_number>0; photo_number--)
-    {
-      photo_show(photo_number);
-      countdown(3, photo_number);        
-      take_a_picture_booth();
-    }
+   
   }
   
   else
   {
-    show(0);
+    show(SHOTS);
+    photo_dark_all();
+    photo_light(READY_);
   }
 }
 
-void time_lapse()
-{
-  if(interval_time == 0)
-  {
-    interval_time = time_lapse_setup();
-  }
-  
-  for(int i = 0; i<interval_time; i++)
-  {
-    for(int j=6; j>0; j--)
-    {
-      circle(j);
-      delay(166);
-    }
-  }
-  
-  take_a_picture();
-}
-
-int time_lapse_setup()
-{ 
-  //settings = 1s,3s,5s,10s,30s,1m,5m,10m
-  // 1 seconds = no lights
-  // 10s seconds = 1 light
-  // 1s minutes = 2 lights
-  // 10s minutes = 3 lights
-  
-  interval_time = 1;
-  int interval_setting = 0; 
-  show(1);
-  for(int i=1; i<5 ;i++)
-  {photo_dark(i);}
-  
-  for(int i=0; i<400; i++)
-  {
-    delay(25);
-    int button_state = digitalRead(BUTTON_PIN);
-    if(button_state == 1)
-    {
-      i = 0;
-      
-      interval_setting++;
-      if(interval_setting > 7)
-      { interval_setting = 0; }
-      
-      for(int j = 0; j<5; j++)
-      {photo_dark(j);}      
-      
-      switch(interval_setting)
-      {
-        case(0): //1s
-          show(1);
-          interval_time = 1;
-          break;
-        case(1): //2s
-          show(3);
-          interval_time = 3;
-          break;
-        case(2): //5s
-          show(5);    
-          interval_time = 5;
-          break;
-        case(3): //10s
-          show(1);    
-          interval_time = 10;
-          photo_light(1);
-          break;
-        case(4): //30s
-          show(3);    
-          interval_time = 30;
-          photo_light(1);
-          break;
-        case(5): //1m
-          show(1);    
-          interval_time = 60;
-          photo_light(1);
-          photo_light(2);
-          break;          
-        case(6): //5m
-          show(5);    
-          interval_time = 300;
-          photo_light(1);
-          photo_light(2);          
-          break;          
-        case(7): //10m
-          show(1);    
-          interval_time = 300;
-          photo_light(1);
-          photo_light(2);          
-          photo_light(3);              
-          break;
-      }  
-     delay(175);  //delay for button debounce
-    } 
-  }
-
-  for(int j = 0; j<5; j++)
-  {photo_dark(j);} 
-  
-  return interval_time;  
-}
 
 void camera_wakeup()
 {
@@ -291,26 +144,6 @@ void camera_wakeup()
   digitalWrite(USB_REMOTE,LOW);
 }
 
-void sound_trigger()
-{
-  
-  
-  pinMode(PIEZO_PIN, INPUT);
-  
-  int signal = analogRead(PIEZO_PIN);
-  
-  if(signal>SOUNDLEVEL)
-  {
-    take_a_picture();
-    showLetter('S');
-    delay(500); //prevents constant triggering
-  }
-  else
-  {
-    showLetter('S');
-  }
- 
-}
   
 
 void take_a_picture()
@@ -318,83 +151,38 @@ void take_a_picture()
   //this 600ms sequence should handle most cameras
   //if needed, make CAMERA_TRIGGER_DELAY longer
   
-  circle(0);
+  //circle(0);
   digitalWrite(WIRED_FOCUS,HIGH);
   digitalWrite(USB_REMOTE,HIGH);
   delay(CAMERA_TRIGGER_DELAY);
 
-  circle(1);
+  //circle(1);
   delay(CAMERA_TRIGGER_DELAY);
   
-  circle(2);
+  //circle(2);
   digitalWrite(USB_REMOTE,LOW);
   delay(CAMERA_TRIGGER_DELAY);
   
-  circle(3);
+  //circle(3);
   digitalWrite(WIRED_SHUTTER,HIGH);
   delay(CAMERA_TRIGGER_DELAY);
   
-  circle(4);
+  //circle(4);
   digitalWrite(USB_REMOTE,HIGH);
   delay(CAMERA_TRIGGER_DELAY);
   
-  circle(5);
+  //circle(5);
   delay(CAMERA_TRIGGER_DELAY);
   digitalWrite(WIRED_FOCUS,LOW);
   digitalWrite(WIRED_SHUTTER,LOW);
   digitalWrite(USB_REMOTE,LOW);
+  
+  digitalWrite(FLASH,HIGH);
+  delay(75);
+  digitalWrite(FLASH,LOW);
+  
 }
 
-void take_a_picture_booth()
-{
-  //this sequence is for photo booth mode - provides better visual indication of when the photo is being taken
-  //this 600ms sequence should handle most cameras
-  //if needed, make CAMERA_TRIGGER_DELAY longer
-  
-  show(0);
-  digitalWrite(WIRED_FOCUS,HIGH);
-  digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY);
-
-  delay(CAMERA_TRIGGER_DELAY);
-  
-  photo_light_all();
-  segments_on();
-  digitalWrite(USB_REMOTE,LOW);
-  delay(CAMERA_TRIGGER_DELAY/2);
-  photo_dark_all();
-  segments_off();  
-  delay(CAMERA_TRIGGER_DELAY/2);
-  
-  photo_light_all();
-  segments_on();
-  digitalWrite(WIRED_SHUTTER,HIGH);
-  delay(CAMERA_TRIGGER_DELAY/2);
-  photo_dark_all();
-  segments_off();  
-  delay(CAMERA_TRIGGER_DELAY/2);
-  
-  photo_light_all();
-  segments_on();
-  digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY);
-  photo_dark_all();
-  segments_off();
-  
-  delay(CAMERA_TRIGGER_DELAY);
-  digitalWrite(WIRED_FOCUS,LOW);
-  digitalWrite(WIRED_SHUTTER,LOW);
-  digitalWrite(USB_REMOTE,LOW);
-
-  //an extra flash for good measure
-  photo_light_all();
-  segments_on();
-  delay(CAMERA_TRIGGER_DELAY);
-  photo_dark_all();
-  segments_off();
-  delay(CAMERA_TRIGGER_DELAY);
-
-}
 
 void countdown(int number, int note)
 {

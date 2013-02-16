@@ -1,4 +1,4 @@
-#include "WProgram.h"
+#include <WProgram.h>
 
 void photo_light(int number)
 {
@@ -18,7 +18,7 @@ void photo_light(int number)
     break;
 
   case 4:
-    digitalWrite(PIN_4,BRIGHT);
+    analogWrite(PIN_4,BRIGHT);
     break;
   }
 }

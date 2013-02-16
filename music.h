@@ -1,4 +1,4 @@
-#include "WProgram.h"
+#include <WProgram.h>
 
 // defines for the frequency of the notes (.5 x freq of mid C)
 #define NOTE_AN    220     // 440 Hz
