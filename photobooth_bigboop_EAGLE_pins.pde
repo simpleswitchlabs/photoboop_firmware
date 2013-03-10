@@ -14,6 +14,8 @@ int BUSY_ = 3;
 int CHANGE_ = 2;
 int POSES_ = 1;
 
+int camera_timer = 0; //tracks how long the camera has been idle and gives it a wakeup signal after 1.5 minutes
+
 
 void setup()
 {
@@ -82,7 +84,9 @@ void photo_booth()
   
   if(button_state == 1)
   {
-    camera_wakeup();
+    camera_timer = 0;
+    
+    camera_wakeup_DSLR();
     photo_dark_all();
     photo_light(BUSY_);
     
@@ -92,7 +96,7 @@ void photo_booth()
       
       if(shot_number < SHOTS)
       {
-        for(int i=4;i>0;i--)
+        for(int i=6;i>0;i--)
         {
           photo_light(CHANGE_);
           delay(400);
@@ -101,11 +105,11 @@ void photo_booth()
           delay(400);
           photo_dark(POSES_);
         }
-        delay (500);
+        delay (100);
       }
       else
       {
-        delay(2000);
+        delay(3500);
       }
       
       take_a_picture();
@@ -120,6 +124,12 @@ void photo_booth()
     show(SHOTS);
     photo_dark_all();
     photo_light(READY_);
+    camera_timer ++;
+    if(camera_timer > 1799) //1800 is about 1.5 minutes, the camera falls asleep after 2 minutes
+    {
+      camera_wakeup();
+      camera_timer = 0;
+    }
   }
 }
 
@@ -127,23 +137,24 @@ void photo_booth()
 void camera_wakeup()
 {
   //triggers the remote so the camera wakes up
-  digitalWrite(WIRED_FOCUS,HIGH);
+  //digitalWrite(WIRED_FOCUS,HIGH);
   digitalWrite(USB_REMOTE,HIGH);
-  //digitalWrite(WIRED_SHUTTER,HIGH);
   delay(CAMERA_TRIGGER_DELAY);
   //digitalWrite(WIRED_SHUTTER,LOW);
   //digitalWrite(WIRED_FOCUS,LOW);
-//  digitalWrite(USB_REMOTE,LOW);
-//  delay(CAMERA_TRIGGER_DELAY);
-  //digitalWrite(WIRED_FOCUS,HIGH);
-  //digitalWrite(USB_REMOTE,HIGH);
-//  digitalWrite(WIRED_SHUTTER,HIGH);
-//  delay(CAMERA_TRIGGER_DELAY);
-  digitalWrite(WIRED_SHUTTER,LOW);
-  digitalWrite(WIRED_FOCUS,LOW);
   digitalWrite(USB_REMOTE,LOW);
 }
 
+void camera_wakeup_DSLR()
+{
+  //triggers the remote so the camera wakes up
+  digitalWrite(WIRED_FOCUS,HIGH);
+  //digitalWrite(USB_REMOTE,HIGH);
+  delay(CAMERA_TRIGGER_DELAY);
+  digitalWrite(WIRED_SHUTTER,LOW);
+  digitalWrite(WIRED_FOCUS,LOW);
+  //digitalWrite(USB_REMOTE,LOW);
+}
   
 
 void take_a_picture()

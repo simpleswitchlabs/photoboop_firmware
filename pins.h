@@ -28,7 +28,7 @@
 #define TURN_OFF 1
 
 //IR LED for IR remote only cameras 
-#define FLASH 13 //for triggering LED FLASHES instead
+#define FLASH 14 //for triggering LED FLASHES instead
 #define IR_LED 13
 
 //PWM pins to display which photo is being taken 
