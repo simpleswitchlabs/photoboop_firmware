@@ -60,16 +60,10 @@ void setup()
 
 void loop()
 {
-//  char stufftosay[ ]="ACDEeFGgHhIJLOoPSY"; //letter test mode
   switch(current_state)
   {
     case 0:
       find_mode();  
-//      for(int i=0;i<sizeof(stufftosay);i++)
-//      {
-//        showLetter(stufftosay[i]);
-//        delay(1000);
-//      }
       break;
       
     case 1:
