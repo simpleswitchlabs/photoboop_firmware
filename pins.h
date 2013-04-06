@@ -28,7 +28,6 @@
 #define TURN_OFF 1
 
 //IR LED for IR remote only cameras 
-#define FLASH 14 //for triggering LED FLASHES instead
 #define IR_LED 13
 
 //PWM pins to display which photo is being taken 
@@ -38,6 +37,10 @@
 #define PIN_4 6
 #define BRIGHT 255 //value between 0 and 255 for LED brightness
 
+//RGB LED in the button is hooked up to the same PWM pins as PIN_1 through PIN_3
+#define RED_PIN 9
+#define GRN_PIN 10
+#define BLU_PIN 5
 
 //the button
 #define BUTTON_PIN 16
@@ -48,6 +51,7 @@
 
 //speaker - must be a pin that can do analog in and PWM
 #define PIEZO_PIN 14
+#define FLASH 14 //for triggering FLASHES instead
 
 //wired remote
 #define WIRED_FOCUS 17
