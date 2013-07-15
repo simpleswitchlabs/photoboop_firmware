@@ -56,3 +56,7 @@
 //wired remote
 #define WIRED_FOCUS 17
 #define WIRED_SHUTTER 18
+
+//stuff for hand wired canon point and shoots
+#define POWER_TOGGLE 13 //IR LED
+#define POWER_SENSE 19 //A5, should be >2V when camera is on

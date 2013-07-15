@@ -5,8 +5,6 @@
  */
 #include "pins.h"
 #include "sevenseg.h"
-#include "music.h"
-#include "lights.h"
 
 //byte sleepTab[] = {
 //      0,   0,   0,   0,   0,   0,   0,   0,   0,   1,
@@ -26,7 +24,7 @@ int sleep_position = 0;
 int sleep = sleep_position;
 int sleep_speed = 8;
 
-int camera_timer = 0; //tracks how long the camera has been idle and gives it a wakeup signal after 1.5 minutes
+int camera_timer = 0; //tracks how long the camera has been idle and gives it a wakeup signal
 
 
 void setup()
@@ -44,8 +42,6 @@ void setup()
   pinMode(BLU_PIN, OUTPUT);
   pinMode(PIN_4, OUTPUT);
   
-  pinMode(PIEZO_PIN, OUTPUT);
-  
   pinMode(FLASH, OUTPUT);
 
   pinMode(BUTTON_PIN, INPUT);
@@ -55,8 +51,13 @@ void setup()
   pinMode(WIRED_FOCUS, OUTPUT);
   pinMode(WIRED_SHUTTER, OUTPUT);
   
+  pinMode(POWER_TOGGLE, OUTPUT);
+  pinMode(POWER_SENSE, INPUT);
+  
   digitalWrite(WIRED_FOCUS,0);
   digitalWrite(WIRED_SHUTTER,0);
+  
+  camera_checkpower();
 
   //a quick test of the displays
   
@@ -72,12 +73,7 @@ void setup()
 
   segments_off();
 
-  for(int j = 1; j<5; j++)
-  {
-    photo_light(j);
-    delay(120);
-    photo_dark(j);
-  }
+
 
 
 }
@@ -95,7 +91,7 @@ void loop()
     
     rgbled('r');
     
-    camera_wakeup_DSLR();
+    camera_wakeup();
     
     for(int i = 4; i > 0; i--)
     {
@@ -109,13 +105,13 @@ void loop()
   {
     show(0);
     camera_timer ++;
-    if(camera_timer > 1799) //1800 is about 1.5 minutes, the camera falls asleep after 2 minutes
+    if(camera_timer > 600) //600 is about 1/2 minutes, most cameras fall asleep after 2 minutes
     {
       camera_wakeup();
       camera_timer = 0;
+      sleep_position = 0;
     }
     
-
     sleep_position+=sleep_speed;
     //if(sleep_position > sizeof(sleepTab)-2)
     if(sleep_position > 255)
@@ -135,6 +131,9 @@ void loop()
       sleep = sleep_position;
     }
 
+      
+    
+
     //analogWrite(GRN_PIN, sleepTab[sleep_position]);
     analogWrite(GRN_PIN, sleep);
     digitalWrite(RED_PIN, 0);
@@ -146,24 +145,15 @@ void loop()
 
 void camera_wakeup()
 {
-  //triggers the remote so the camera wakes up
-  //digitalWrite(WIRED_FOCUS,HIGH);
-  digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY);
-  //digitalWrite(WIRED_SHUTTER,LOW);
-  //digitalWrite(WIRED_FOCUS,LOW);
-  digitalWrite(USB_REMOTE,LOW);
-}
-
-void camera_wakeup_DSLR()
-{
+  camera_checkpower();
+  
   //triggers the remote so the camera wakes up
   digitalWrite(WIRED_FOCUS,HIGH);
-  //digitalWrite(USB_REMOTE,HIGH);
+  digitalWrite(USB_REMOTE,HIGH);
   delay(CAMERA_TRIGGER_DELAY);
   digitalWrite(WIRED_SHUTTER,LOW);
   digitalWrite(WIRED_FOCUS,LOW);
-  //digitalWrite(USB_REMOTE,LOW);
+  digitalWrite(USB_REMOTE,LOW);
 }
   
 
@@ -176,7 +166,7 @@ void take_a_picture()
   
   digitalWrite(WIRED_FOCUS,HIGH);
   digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY * 2);
+  delay(CAMERA_TRIGGER_DELAY);
  
   digitalWrite(USB_REMOTE,LOW);
   delay(CAMERA_TRIGGER_DELAY);
@@ -185,19 +175,22 @@ void take_a_picture()
   digitalWrite(WIRED_SHUTTER,HIGH);
   delay(CAMERA_TRIGGER_DELAY);
   
-  rgbled('w');
+
   digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY);
+  delay(CAMERA_TRIGGER_DELAY * 2);
   
-  rgbled('0');
+  rgbled('w');
   delay(CAMERA_TRIGGER_DELAY);
   digitalWrite(WIRED_FOCUS,LOW);
   digitalWrite(WIRED_SHUTTER,LOW);
   digitalWrite(USB_REMOTE,LOW);
   
+  rgbled('0');
+  delay(CAMERA_TRIGGER_DELAY); //added this delay to hopefully prevent whiteout
   digitalWrite(FLASH,HIGH);
   delay(25);
   digitalWrite(FLASH,LOW);
+  
   rgbled('r');
 }
 
@@ -232,9 +225,32 @@ void rgbled(char color)
       analogWrite(GRN_PIN, 0);
       analogWrite(BLU_PIN, 0);
       break;
+      
+    case 'b': //blue
+      analogWrite(RED_PIN, 0);
+      analogWrite(GRN_PIN, 0);
+      analogWrite(BLU_PIN, 254);
+      break;
   }
           
 }
 
-
+void camera_checkpower()
+{
+  //for use with hand-wired cameras
+  //if the power sense line is too low, will attempt to power on the camera
+  
+  int power_level = analogRead(POWER_SENSE);
+  
+  while (power_level < 50)
+  {
+    rgbled('b'); //sets the rgb led to bright blue while trying to power the camera back on
+    
+    digitalWrite(POWER_TOGGLE, HIGH);
+    delay(500);
+    digitalWrite(POWER_TOGGLE, LOW);
+    delay(100);
+    power_level = analogRead(POWER_SENSE);
+  }
+}
 
