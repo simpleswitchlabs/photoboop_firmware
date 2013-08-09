@@ -7,6 +7,10 @@
 
 #define SHOTS 4 //the number of photos per photo booth run
 
+#define DSLR_CAM false
+#define CHDK_CAM true
+#define WIRED_FLASH false
+
 // ***pin assignments - don't play with unless you know what you're doing***
 
 //defining the segments A-G  

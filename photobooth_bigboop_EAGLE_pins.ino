@@ -240,17 +240,17 @@ void camera_checkpower()
   //for use with hand-wired cameras
   //if the power sense line is too low, will attempt to power on the camera
   
-  int power_level = analogRead(POWER_SENSE);
-  
-  while (power_level < 50)
-  {
-    rgbled('b'); //sets the rgb led to bright blue while trying to power the camera back on
-    
-    digitalWrite(POWER_TOGGLE, HIGH);
-    delay(500);
-    digitalWrite(POWER_TOGGLE, LOW);
-    delay(100);
-    power_level = analogRead(POWER_SENSE);
-  }
+//  int power_level = analogRead(POWER_SENSE);
+//  
+//  while (power_level < 50)
+//  {
+//    rgbled('b'); //sets the rgb led to bright blue while trying to power the camera back on
+//    
+//    digitalWrite(POWER_TOGGLE, HIGH);
+//    delay(500);
+//    digitalWrite(POWER_TOGGLE, LOW);
+//    delay(100);
+//    power_level = analogRead(POWER_SENSE);
+//  }
 }
 
