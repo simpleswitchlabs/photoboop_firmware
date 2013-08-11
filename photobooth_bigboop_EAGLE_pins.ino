@@ -132,8 +132,6 @@ void loop()
     }
 
       
-    
-
     //analogWrite(GRN_PIN, sleepTab[sleep_position]);
     analogWrite(GRN_PIN, sleep);
     digitalWrite(RED_PIN, 0);
@@ -161,37 +159,79 @@ void take_a_picture()
 {
   //this 600ms sequence should handle most cameras
   //if needed, make CAMERA_TRIGGER_DELAY longer
+  if(CHDK_CAM)
+  {
+    show(0);
+    digitalWrite(USB_REMOTE,HIGH);
+    delay(CAMERA_TRIGGER_DELAY);
+   
+    digitalWrite(USB_REMOTE,LOW);
+    delay(CAMERA_TRIGGER_DELAY);
+    
+    rgbled('0');
+    delay(CAMERA_TRIGGER_DELAY);
+    
   
-  show(0);
+    digitalWrite(USB_REMOTE,HIGH);
+    delay(CAMERA_TRIGGER_DELAY * 2);
+    
+    rgbled('w');
+    delay(CAMERA_TRIGGER_DELAY);
+    digitalWrite(USB_REMOTE,LOW);
+    
+    rgbled('0');
+    delay(CAMERA_TRIGGER_DELAY); //added this delay to hopefully prevent whiteout
+    
+    if(WIRED_FLASH)
+    {
+      digitalWrite(FLASH,HIGH);
+      delay(25);
+      digitalWrite(FLASH,LOW);
+    }
+    
+    rgbled('r');
+  }
   
-  digitalWrite(WIRED_FOCUS,HIGH);
-  digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY);
- 
-  digitalWrite(USB_REMOTE,LOW);
-  delay(CAMERA_TRIGGER_DELAY);
+  if(DSLR_CAM)
+  {
+    show(0);
+    digitalWrite(WIRED_FOCUS,HIGH);
+    digitalWrite(USB_REMOTE,HIGH);
+    delay(CAMERA_TRIGGER_DELAY);
+   
+    digitalWrite(USB_REMOTE,LOW);
+    delay(CAMERA_TRIGGER_DELAY);
+    
+    rgbled('0');
+    digitalWrite(WIRED_SHUTTER,HIGH);
+    delay(CAMERA_TRIGGER_DELAY);
+    
   
-  rgbled('0');
-  digitalWrite(WIRED_SHUTTER,HIGH);
-  delay(CAMERA_TRIGGER_DELAY);
+    digitalWrite(USB_REMOTE,HIGH);
+    delay(CAMERA_TRIGGER_DELAY * 2);
+    
+    rgbled('w');
+    delay(CAMERA_TRIGGER_DELAY);
+    digitalWrite(WIRED_FOCUS,LOW);
+    digitalWrite(WIRED_SHUTTER,LOW);
+    digitalWrite(USB_REMOTE,LOW);
+    
+    rgbled('0');
+    delay(CAMERA_TRIGGER_DELAY); //added this delay to hopefully prevent whiteout
+    digitalWrite(FLASH,HIGH);
+    delay(25);
+    digitalWrite(FLASH,LOW);
+    
+    rgbled('r');
+    
+    if(WIRED_FLASH)
+    {
+      digitalWrite(FLASH,HIGH);
+      delay(25);
+      digitalWrite(FLASH,LOW);
+    }
+  }
   
-
-  digitalWrite(USB_REMOTE,HIGH);
-  delay(CAMERA_TRIGGER_DELAY * 2);
-  
-  rgbled('w');
-  delay(CAMERA_TRIGGER_DELAY);
-  digitalWrite(WIRED_FOCUS,LOW);
-  digitalWrite(WIRED_SHUTTER,LOW);
-  digitalWrite(USB_REMOTE,LOW);
-  
-  rgbled('0');
-  delay(CAMERA_TRIGGER_DELAY); //added this delay to hopefully prevent whiteout
-  digitalWrite(FLASH,HIGH);
-  delay(25);
-  digitalWrite(FLASH,LOW);
-  
-  rgbled('r');
 }
 
 
