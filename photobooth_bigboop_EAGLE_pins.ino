@@ -191,8 +191,7 @@ void take_a_picture()
     
     rgbled('r');
   }
-  
-  if(DSLR_CAM)
+  else if(DSLR_CAM)
   {
     show(0);
     digitalWrite(WIRED_FOCUS,HIGH);
