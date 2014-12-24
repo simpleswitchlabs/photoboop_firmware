@@ -8,15 +8,40 @@
 #define SHOTS 4 //the number of photos per photo booth run
 
 //pick one of the CAM settings - if both are turned on, the photo 
-#define DSLR_CAM false
-#define CHDK_CAM true
+#define DSLR_CAM true
+#define CHDK_CAM false
+#define WIRED_CAM true
+
 
 //turn on if using photoboop-controlled flash - turn off if the camera is controlling the flash
 #define WIRED_FLASH true
 
 // ***pin assignments - don't play with unless you know what you're doing***
+/*
+ATMEGA 328P-PU Pin Mapping
+0      RX
+1      TX
+2      7-segment LED C
+3      7-segment LED D
+4      7-segment LED E
+5      Blue part of RGB button
+6      4th shot indicator LED (Unused)
+7      7-segment LED F
+8      7-segment LED G
+9      Red part of RGB button
+10      Green part of RGB button
+11      7-segment LED B
+12      7-segment LED A
+13      IR LED transistor
+A0/14    Piezo / wired Flash trigger
+A1/15    USB signal to CHDK camera (controle the +5V rail)
+A2/16    Button input
+A3/17    Wired focus for DSLR
+A4/18    Wired shutter for DSLR
+A5/19    (unused)
+*/
 
-//defining the segments A-G  
+//defining the 7-segment LED display parts A-G  
 //A==top middle, B==top right, C==bottom right, D==bottom middle
 //E==bottom left, F==top left, G == center middle
 //decimal points aren't used
@@ -24,7 +49,7 @@
 #define PIN_B 11 //
 #define PIN_C 2 //
 #define PIN_D 3 //
-#define PIN_E 4 //correct
+#define PIN_E 4 //
 #define PIN_F 7
 #define PIN_G 8
 
@@ -33,6 +58,9 @@
 //common cathode: opposite of common anode
 #define TURN_ON 0
 #define TURN_OFF 1
+
+//Wired flash
+#define FLASH 14 //for triggering FLASHES instead
 
 //IR LED for IR remote only cameras 
 #define IR_LED 13
@@ -58,9 +86,8 @@
 
 //speaker - must be a pin that can do analog in and PWM
 #define PIEZO_PIN 14
-#define FLASH 14 //for triggering FLASHES instead
 
-//wired remote
+//DSLR remote
 #define WIRED_FOCUS 17
 #define WIRED_SHUTTER 18
 
