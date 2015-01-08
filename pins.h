@@ -5,7 +5,7 @@
 
 #define CAMERA_TRIGGER_DELAY 100 //make this larger if you're having trouble getting camera to trigger properly
 
-#define SHOTS 4 //the number of photos per photo booth run
+#define SHOTS 1 //the number of photos per button press (1, 3, and 4 are good numbers)
 
 //pick one of the CAM settings - if both are turned on, the photo 
 #define DSLR_CAM true

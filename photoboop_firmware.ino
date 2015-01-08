@@ -1,7 +1,12 @@
   /* 
  Arduino-powered photobooth firmware
- Simple Switch Labs
- April 10, 2011
+ (c) 2011-2015 Simple Switch Labs
+ Released as Creative Commons 3.0 Attribution, Share Alike, noncommercial
+ This firmware is designed for Photoboop-powered all-in-one photo booths, with lighting, flash, RGB button, and a hand-soldered camera.
+ Compatible with Rental Boop 5 and 6 enclosures and Photoboop v1.0 - 1.2 hardware.
+ Not for use in Photoboop DSLR or CHDK enclosures.
+ 
+ See pins.h for settings.
  */
 #include "pins.h"
 #include "sevenseg.h"
@@ -72,10 +77,6 @@ void setup()
   digitalWrite(FLASH,0);
 
   segments_off();
-
-
-
-
 }
 
 
@@ -93,7 +94,7 @@ void loop()
     
     camera_wakeup();
     
-    for(int i = 4; i > 0; i--)
+    for(int i = SHOTS; i > 0; i--)
     {
       countdown(5);
       take_a_picture();
@@ -105,11 +106,11 @@ void loop()
   {
     show(0);
     camera_timer ++;
-    if(camera_timer > 600) //600 is about 1/2 minutes, most cameras fall asleep after 2 minutes
+    if(camera_timer > 600) //600 is about 30 seconds, most cameras fall asleep after 2 minutes
     {
       camera_wakeup();
       camera_timer = 0;
-      sleep_position = 0;
+      //sleep_position = 0;
     }
     
     sleep_position+=sleep_speed;
@@ -118,7 +119,7 @@ void loop()
     {
       if(sleep_position > 510)
       {
-        sleep_position = 0;
+        sleep_position = 0;//reset to 0
         sleep = sleep_position;
       }
       else
